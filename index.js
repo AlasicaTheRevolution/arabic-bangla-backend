@@ -32,12 +32,26 @@ const run = async () => {
       const categories = await categoriesCollection.find({}).toArray();
       res.send(categories);
     });
-    //get nahu
+    //get a category
     app.get("/category/:id", async (req, res) => {
       const category = await categoriesCollection.findOne({
         _id: new ObjectId(req.params.id),
       });
       res.send(category);
+    });
+    app.put("/category/:id", async (req, res) => {
+      const category = req.body;
+      const filter = { _id: new ObjectId(req.params.id) };
+      const updatedDoc = {
+        $set: category,
+      };
+      const options = { upsert: true };
+      const result = await categoriesCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
     });
 
     console.log("Connected to Database");
