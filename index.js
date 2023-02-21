@@ -1,6 +1,4 @@
-// alasicatherevolution
-// xlntZNuGv2PqMNIX
-
+const mongoose = require('mongoose');
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -21,13 +19,16 @@ const client = new MongoClient(uri, {
 const run = async () => {
   try {
     await client.connect();
+
     //collections
     const categoriesCollection = client
       .db("arabic-bangla")
       .collection("categories");
-      const subCategoriesCollection = client
+    const subCategoriesCollection = client
       .db("arabic-bangla")
       .collection("sub-category");
+      
+
 
     //apis
     //get all categories
@@ -35,6 +36,19 @@ const run = async () => {
       const categories = await categoriesCollection.find({}).toArray();
       res.send(categories);
     });
+
+    app.get('/sub-category', async (req, res) => {
+      let query = {}
+      if (req.query.category) {
+        query = {
+          category: req.query.category
+        }
+      }
+      const cursor = subCategoriesCollection.find(query)
+      const review = await cursor.toArray()
+      res.send(review)
+    })
+
     //get a category
     app.get("/category/:id", async (req, res) => {
       const category = await categoriesCollection.findOne({
@@ -42,6 +56,7 @@ const run = async () => {
       });
       res.send(category);
     });
+
     app.put("/category/:id", async (req, res) => {
       const category = req.body;
       const filter = { _id: new ObjectId(req.params.id) };
