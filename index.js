@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -27,8 +27,6 @@ const run = async () => {
     const subCategoriesCollection = client
       .db("arabic-bangla")
       .collection("sub-category");
-      
-
 
     //apis
     //get all categories
@@ -37,17 +35,17 @@ const run = async () => {
       res.send(categories);
     });
 
-    app.get('/sub-category', async (req, res) => {
-      let query = {}
+    app.get("/sub-category", async (req, res) => {
+      let query = {};
       if (req.query.category) {
         query = {
-          category: req.query.category
-        }
+          category: req.query.category,
+        };
       }
-      const cursor = subCategoriesCollection.find(query)
-      const review = await cursor.toArray()
-      res.send(review)
-    })
+      const cursor = subCategoriesCollection.find(query);
+      const review = await cursor.toArray();
+      res.send(review);
+    });
 
     //get a category
     app.get("/category/:id", async (req, res) => {
@@ -72,10 +70,17 @@ const run = async () => {
       res.send(result);
     });
     // add sub category
-    app.post('/sub-category', async (req, res) => {
+    app.post("/sub-category", async (req, res) => {
       const subCategory = req.body;
       const result = await subCategoriesCollection.insertOne(subCategory);
       res.send(result);
+    });
+    // get sub category by slug
+    app.get("/sub-category/:slug", async (req, res) => {
+      const subcategory = await subCategoriesCollection.findOne({
+        slug: req.params.slug,
+      });
+      res.send(subcategory);
     });
 
     console.log("Connected to Database");
