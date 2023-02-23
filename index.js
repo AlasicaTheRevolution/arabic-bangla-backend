@@ -82,7 +82,32 @@ const run = async () => {
       });
       res.send(subcategory);
     });
-
+    // get all sub categories
+    app.get("/sub-categories", async (req, res) => {
+      const subCategories = await subCategoriesCollection.find({}).toArray();
+      res.send(subCategories);
+    });
+    //delete sub category by _id
+    app.delete("/delete-sub-category/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await subCategoriesCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      res.send(result);
+    });
+    //patch sub category by slug
+    app.patch("/update-sub-category/:slug", async (req, res) => {
+      const content = req.body;
+      const filter = { slug: req.params.slug };
+      const updatedDoc = {
+        $set: content,
+      };
+      const result = await subCategoriesCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+      res.send(result);
+    });
     console.log("Connected to Database");
   } finally {
   }
