@@ -1,6 +1,4 @@
-// alasicatherevolution
-// xlntZNuGv2PqMNIX
-
+const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -21,11 +19,12 @@ const client = new MongoClient(uri, {
 const run = async () => {
   try {
     await client.connect();
+
     //collections
     const categoriesCollection = client
       .db("arabic-bangla")
       .collection("categories");
-      const subCategoriesCollection = client
+    const subCategoriesCollection = client
       .db("arabic-bangla")
       .collection("sub-category");
 
@@ -35,6 +34,19 @@ const run = async () => {
       const categories = await categoriesCollection.find({}).toArray();
       res.send(categories);
     });
+
+    app.get("/sub-category", async (req, res) => {
+      let query = {};
+      if (req.query.category) {
+        query = {
+          category: req.query.category,
+        };
+      }
+      const cursor = subCategoriesCollection.find(query);
+      const review = await cursor.toArray();
+      res.send(review);
+    });
+
     //get a category
     app.get("/category/:id", async (req, res) => {
       const category = await categoriesCollection.findOne({
@@ -42,6 +54,7 @@ const run = async () => {
       });
       res.send(category);
     });
+
     app.put("/category/:id", async (req, res) => {
       const category = req.body;
       const filter = { _id: new ObjectId(req.params.id) };
@@ -57,12 +70,44 @@ const run = async () => {
       res.send(result);
     });
     // add sub category
-    app.post('/sub-category', async (req, res) => {
+    app.post("/sub-category", async (req, res) => {
       const subCategory = req.body;
       const result = await subCategoriesCollection.insertOne(subCategory);
       res.send(result);
     });
-
+    // get sub category by slug
+    app.get("/sub-category/:slug", async (req, res) => {
+      const subcategory = await subCategoriesCollection.findOne({
+        slug: req.params.slug,
+      });
+      res.send(subcategory);
+    });
+    // get all sub categories
+    app.get("/sub-categories", async (req, res) => {
+      const subCategories = await subCategoriesCollection.find({}).toArray();
+      res.send(subCategories);
+    });
+    //delete sub category by _id
+    app.delete("/delete-sub-category/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await subCategoriesCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      res.send(result);
+    });
+    //patch sub category by slug
+    app.patch("/update-sub-category/:slug", async (req, res) => {
+      const content = req.body;
+      const filter = { slug: req.params.slug };
+      const updatedDoc = {
+        $set: content,
+      };
+      const result = await subCategoriesCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+      res.send(result);
+    });
     console.log("Connected to Database");
   } finally {
   }
