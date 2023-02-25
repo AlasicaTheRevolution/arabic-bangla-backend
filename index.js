@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -70,7 +69,7 @@ const run = async () => {
       res.send(result);
     });
     // add sub category
-    app.post("/sub-category", async (req, res) => {
+    app.post("./sub-category", async (req, res) => {
       const subCategory = req.body;
       const result = await subCategoriesCollection.insertOne(subCategory);
       res.send(result);
