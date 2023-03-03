@@ -26,6 +26,7 @@ const run = async () => {
     const subCategoriesCollection = client
       .db("arabic-bangla")
       .collection("sub-category");
+    const menuCollection = client.db("arabic-bangla").collection("menus");
 
     //apis
     //get all categories
@@ -105,6 +106,25 @@ const run = async () => {
         filter,
         updatedDoc
       );
+      res.send(result);
+    });
+    // get all menu
+    app.get("/menus", async (req, res) => {
+      const menus = await menuCollection.find({}).toArray();
+      res.send(menus);
+    });
+    //post a menu
+    app.post("/menu", async (req, res) => {
+      const menu = req.body;
+      const result = await menuCollection.insertOne(menu);
+      res.send(result);
+    });
+    // delete menu by _id
+    app.delete("/delete-menu/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await menuCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
       res.send(result);
     });
     console.log("Connected to Database");
